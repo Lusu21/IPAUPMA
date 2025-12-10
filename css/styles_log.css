@@ -1,0 +1,214 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500&display=swap');
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-image: url("../img/fondo.jpg");
+    background-size: cover;
+    background-position: center;
+    padding-bottom: 0;
+    font-family: 'Outfit', Arial, sans-serif; /* <-- agregar */
+    font-weight: 400; /* o 500 si quieres el peso importado */
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 30px;
+    background-color: rgba(99, 153, 206, 0.466);
+    border-radius: 15px;
+    padding: 10px 100px 15px 80px;
+    margin-top: 15px;
+}
+
+.login-from-img {
+    margin: 0;
+}
+
+.accordion {
+    padding: 20px;
+    color: white;
+    margin-top: 8px;
+    font-size: 13px;
+    width: 400px;
+}
+
+.accordion-item {
+    margin-top: 0;
+    margin-bottom: 0;
+    border-radius: 0; /* Opcional: elimina esquinas redondeadas entre items */
+}
+.accordion-botton {
+    background-color: #003366;
+    color: white;
+    cursor: pointer;
+    padding: 10px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    transition: background-color 0.3s ease;
+}
+
+h2 {
+    margin-bottom: 22px;
+}
+
+.login-form {
+    opacity: 0;
+    animation: fadeInUp 2s ease forwards;
+    animation-delay: 0.5s;
+    align-items: center;
+    margin-top: 5px;
+    width: 350px;
+    border-radius: 15px;
+    border-style: solid;
+    background-color: rgb(255, 255, 255);
+    box-shadow: 10px 5px 20px rgb(3, 15, 68);
+    border: 1px solid #afafaf; /* Añadido borde */
+    display: flex;
+    flex-direction: column; /* Para centrar contenido verticalmente */
+    align-items: center; /* Para centrar horizontalmente */
+    justify-content: center; /* Para asegurarse de que todo se centra */
+    padding: 20px; /* Para que el contenido no quede pegado al borde */
+}
+
+/* Animación de entrada en el formulario */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 6px 10px;
+    background-color: #f9f9f9;
+    width: 300px;
+}
+
+.input-group ion-icon {
+    padding: 5px;
+    font-size: 20px;
+    color: #003366;
+    margin-right: 10px;
+    transition: color 0.3s, transform 0.3s;
+}
+
+.input-group ion-icon:hover {
+    border-radius: 5px;
+    color: #007bff;
+    transform: rotate(10deg);
+}
+
+.input-group input {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: none;
+    outline: none;
+    flex: 1;
+    background: transparent;
+    font-size: 16px;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+    padding: 9px 11px;
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+.login-form-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px;
+    width: min-content;
+    padding: 10px 14px;
+    gap: 10px; /* Esto añade un espacio de 10px entre los botones */
+}
+
+.login-form-buttons button {
+    flex: 1; /* Hace que los botones ocupen el mismo espacio */
+    margin: 0 5px; /* Añade un margen horizontal entre los botones */
+}
+
+button {
+    border: none;
+    background-color: rgb(11, 132, 252);
+    color: white;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background-color: #0d3b69;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.alert {
+    text-align: center;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    border-radius: 8px;
+    /* Esquinas redondeadas */
+    padding: 10px;
+    font-size: 0.95rem;
+    animation: bounceIn 0.5s ease forwards;
+}
+
+.alert p {
+    margin-bottom: 0;
+}
+
+.alert svg {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+/* --- FOOTER SIEMPRE ABAJO --- */
+footer {
+    position: static;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: rgb(255, 255, 255);
+    padding: 15px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #000000;
+    box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    margin-top: auto;
+}
+
+@media (max-width: 100px) {
+    .main-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .login-form-buttons {
+        flex-direction: column;
+    }
+}
