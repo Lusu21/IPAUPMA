@@ -86,7 +86,7 @@ try {
             outline: none; 
             background: #f8f9fa; 
         }
-        #tablaFamilia input { text-transform: none; }
+        #tablaFamilia input { text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -109,7 +109,7 @@ try {
 
         <nav class="navegacion">
             <ul>
-                <li><a href="dashboard.php"><ion-icon name="desktop-outline"></ion-icon><span>Dashboard</span></a></li>
+                <li><a href="admin.php"><ion-icon name="desktop-outline"></ion-icon><span>Dashboard</span></a></li>
                 <li><a href="usuarios.php"><ion-icon name="people-outline"></ion-icon><span>Usuarios</span></a></li>
                 <li><a href="lista_censos.php"><ion-icon name="person-outline"></ion-icon><span>Lista de Censados</span></a></li>
                 <li><a id="añadir-estudiante" href="inscripcion_censo.php"><ion-icon name="person-add-outline"></ion-icon><span>inscripcion Censo</span></a></li>
@@ -156,15 +156,15 @@ try {
 
                         <div class="col-md-3">
                             <label class="form-label required-field">Sector</label>
-                            <input type="text" class="form-control form-control-sm" name="sector" required>
+                            <input type="text" class="form-control form-control-sm" name="sector" required maxlength="40">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label required-field">Nombres</label>
-                            <input type="text" class="form-control form-control-sm" name="nombre" required>
+                            <input type="text" class="form-control form-control-sm" name="nombre" required maxlength="40">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label required-field">Apellidos</label>
-                            <input type="text" class="form-control form-control-sm" name="apellido" required>
+                            <input type="text" class="form-control form-control-sm" name="apellido" required maxlength="40">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label required-field">Cédula</label>
@@ -172,7 +172,7 @@ try {
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">RIF</label>
-                            <input type="text" class="form-control form-control-sm" name="rif">
+                            <input type="text" class="form-control form-control-sm" name="rif" maxlength="10">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Fecha Nacimiento</label>
@@ -180,21 +180,21 @@ try {
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Teléfono</label>
-                            <input type="text" class="form-control form-control-sm" name="telefono" id="telefono">
+                            <input type="text" class="form-control form-control-sm" name="telefono" id="telefono" maxlength="12">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Grado Instrucción</label>
                             <select class="form-select form-select-sm" name="grado_instruccion">
-                                <option value="Primaria">PRIMARIA</option>
-                                <option value="Bachiller">BACHILLER</option>
-                                <option value="Técnico Medio">TÉCNICO MEDIO</option>
-                                <option value="Universitario">UNIVERSITARIO</option>
-                                <option value="Ninguno">NINGUNO</option>
+                                <option value="PRIMARIA">PRIMARIA</option>
+                                <option value="BACHILLER">BACHILLER</option>
+                                <option value="TECNICO MEDIO">TÉCNICO MEDIO</option>
+                                <option value="UNIVERSITARIO">UNIVERSITARIO</option>
+                                <option value="NINGUNO">NINGUNO</option>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Ocupación u Oficio</label>
-                            <input type="text" class="form-control form-control-sm" name="oficio_ocupacion">
+                            <input type="text" class="form-control form-control-sm" name="oficio_ocupacion" maxlength="40">
                         </div>
                     </div>
                 </div>
@@ -203,7 +203,7 @@ try {
             <div class="card compact-card border-secondary">
                 <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center py-1">
                     <span>Carga Familiar</span>
-                    <button type="button" class="btn btn-light btn-sm py-0" onclick="agregarFamiliar()">+ Agregar</button>
+                    <button type="button" class="btn btn-light btn-sm py-0" id="btnAgregarFamiliar" onclick="agregarFamiliar()">+ Agregar</button>
                 </div>
                 
                 <div class="card-body p-0">
@@ -232,11 +232,11 @@ try {
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label">Nombre del Predio</label>
-                            <input type="text" class="form-control form-control-sm" name="nombre_predio">
+                            <input type="text" class="form-control form-control-sm" name="nombre_predio" maxlength="40">
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">Nº Hectáreas</label>
-                            <input type="number" step="0.01" class="form-control form-control-sm" name="hectareas">
+                            <input type="number" step="1" max="100" class="form-control form-control-sm" name="hectareas" maxlength="3">
                         </div>
                         
                         <div class="col-md-12">
@@ -287,72 +287,167 @@ try {
                     <div class="row g-2">
                         <div class="col-md-3">
                             <label class="form-label">Tipo de Cultivo</label>
-                            <input type="text" class="form-control form-control-sm" name="tipo_cultivo">
+                            <input type="text" class="form-control form-control-sm" name="tipo_cultivo" maxlength="20">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Área Cultivada</label>
-                            <input type="text" class="form-control form-control-sm" name="area_cultivada">
+                            <input type="text" class="form-control form-control-sm" name="area_cultivada" maxlength="20">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Tiempo de Sembrado</label>
-                            <input type="text" class="form-control form-control-sm" name="tiempo_sembrado">
+                            <input type="text" class="form-control form-control-sm" name="tiempo_sembrado" maxlength="20">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Canal Comercialización</label>
-                            <input type="text" class="form-control form-control-sm" name="canal_comercializacion">
+                            <input type="text" class="form-control form-control-sm" name="canal_comercializacion" maxlength="30">
                         </div>
                         
                         <div class="col-md-4 mt-2">
                             <label class="form-label">Cultivo Principal</label>
-                            <input type="text" class="form-control form-control-sm" name="cultivo_principal">
+                            <input type="text" class="form-control form-control-sm" name="cultivo_principal" maxlength="20">
                         </div>
                         <div class="col-md-4 mt-2">
                             <label class="form-label">Cultivo Secundario</label>
-                            <input type="text" class="form-control form-control-sm" name="cultivo_secundario">
+                            <input type="text" class="form-control form-control-sm" name="cultivo_secundario" maxlength="20">
+                        </div>
+                        <div class="col-md-4 mt-2">
+                            <label class="form-label">Cantidad Cultivada</label>
+                            <input type="text" class="form-control form-control-sm" name="cantidad_cultivada" maxlength="20">
                         </div>
                         <div class="col-md-4 mt-2">
                             <label class="form-label">¿Dónde vende su producto?</label>
-                            <input type="text" class="form-control form-control-sm" name="venta_producto">
+                            <input type="text" class="form-control form-control-sm" name="venta_producto" maxlength="40">
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="card compact-card border-danger">
-                <div class="card-header bg-danger text-white">Agrícola Animal (Cantidades)</div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-md-3 border-end">
-                            <strong class="d-block mb-2 text-danger">BOVINO</strong>
-                            <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Vacas</span><input type="number" name="cant_vaca" class="form-control"></div>
-                            <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Toros</span><input type="number" name="cant_toro" class="form-control"></div>
-                            <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Novillos</span><input type="number" name="cant_novillo" class="form-control"></div>
-                            <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Becerros</span><input type="number" name="cant_becerros" class="form-control"></div>
-                            <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Búfalos</span><input type="number" name="cant_bufalo" class="form-control"></div>
-                        </div>
-                        <div class="col-md-3 border-end">
-                            <strong class="d-block mb-2 text-danger">CAPRINO/PORCINO</strong>
-                            <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Chivos</span><input type="number" name="cant_chivo" class="form-control"></div>
-                            <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Cabras</span><input type="number" name="cant_cabra" class="form-control"></div>
-                            <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Ovejos</span><input type="number" name="cant_ovejo" class="form-control"></div>
-                            <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Cerdos</span><input type="number" name="cant_verraco" class="form-control"></div>
-                            <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Lechones</span><input type="number" name="cant_lechones" class="form-control"></div>
-                        </div>
-                        <div class="col-md-3 border-end">
-                            <strong class="d-block mb-2 text-danger">AVÍCOLA</strong>
-                            <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Pollos</span><input type="number" name="cant_pollo_engorde" class="form-control"></div>
-                            <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Ponedoras</span><input type="number" name="cant_gallinas_ponedoras" class="form-control"></div>
-                            <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">De Patio</span><input type="number" name="cant_gallinas_patio" class="form-control"></div>
-                        </div>
-                        <div class="col-md-3">
-                            <strong class="d-block mb-2 text-danger">PISCICULTURA</strong>
-                            <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Alevines</span><input type="number" name="cant_alevines" class="form-control"></div>
-                            <div class="input-group input-group-sm mb-1"><span class="input-group-text w-50">Peces</span><input type="number" name="cant_peces" class="form-control"></div>
-                        </div>
-                    </div>
+    <div class="card-header bg-danger text-white">Agrícola Animal (Cantidades)</div>
+    <div class="card-body">
+        <div class="row text-center">
+            <!-- COLUMNA 1: BOVINO COMPLETO -->
+            <div class="col-md-3 border-end">
+                <strong class="d-block mb-2 text-danger">BOVINO</strong>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Vacas</span>
+                    <input type="number" name="cant_vaca" class="form-control" value="0">
+                </div>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Toros</span>
+                    <input type="number" name="cant_toro" class="form-control" value="0">
+                </div>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Novillos</span>
+                    <input type="number" name="cant_novillo" class="form-control" value="0">
+                </div>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Máticas</span>
+                    <input type="number" name="cant_maticas" class="form-control" value="0">
+                </div>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Mautes</span>
+                    <input type="number" name="cant_mautes" class="form-control" value="0">
+                </div>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Becerros</span>
+                    <input type="number" name="cant_becerros" class="form-control" value="0">
+                </div>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Becerras</span>
+                    <input type="number" name="cant_becerras" class="form-control" value="0">
                 </div>
             </div>
-
+            
+            <!-- COLUMNA 2: BÚFALOS y CAPRINO/OVINO -->
+            <div class="col-md-3 border-end">
+                <!-- BÚFALOS -->
+                <strong class="d-block mb-2 text-warning">BÚFALOS</strong>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Búfalos</span>
+                    <input type="number" name="cant_bufalo" class="form-control" value="0">
+                </div>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Búfalas</span>
+                    <input type="number" name="cant_bufala" class="form-control" value="0">
+                </div>
+                
+                <!-- CAPRINO/OVINO -->
+                <strong class="d-block mb-2 mt-3 text-primary">CAPRINO/OVINO</strong>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Chivos</span>
+                    <input type="number" name="cant_chivo" class="form-control" value="0">
+                </div>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Cabras</span>
+                    <input type="number" name="cant_cabra" class="form-control" value="0">
+                </div>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Ovejos</span>
+                    <input type="number" name="cant_ovejo" class="form-control" value="0">
+                </div>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Ovejas</span>
+                    <input type="number" name="cant_oveja" class="form-control" value="0">
+                </div>
+            </div>
+            
+            <!-- COLUMNA 3: PORCINOS y AVES -->
+            <div class="col-md-3 border-end">
+                <!-- PORCINOS -->
+                <strong class="d-block mb-2 text-info">PORCINOS</strong>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Verracos</span>
+                    <input type="number" name="cant_verraco" class="form-control" value="0">
+                </div>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Cerdas Madre</span>
+                    <input type="number" name="cant_cerda_madre" class="form-control" value="0">
+                </div>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Levantes</span>
+                    <input type="number" name="cant_levantes" class="form-control" value="0">
+                </div>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Lechones</span>
+                    <input type="number" name="cant_lechones" class="form-control" value="0">
+                </div>
+                
+                <!-- AVES -->
+                <strong class="d-block mb-2 mt-3 text-warning">AVES</strong>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Pollos Engorde</span>
+                    <input type="number" name="cant_pollo_engorde" class="form-control" value="0">
+                </div>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Gallinas Ponedoras</span>
+                    <input type="number" name="cant_gallinas_ponedoras" class="form-control" value="0">
+                </div>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Gallinas Patio</span>
+                    <input type="number" name="cant_gallinas_patio" class="form-control" value="0">
+                </div>
+            </div>
+            
+            <!-- COLUMNA 4: PISCICULTURA -->
+            <div class="col-md-3">
+                <strong class="d-block mb-2 text-success">PISCICULTURA</strong>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Alevines</span>
+                    <input type="number" name="cant_alevines" class="form-control" value="0">
+                </div>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Peces</span>
+                    <input type="number" name="cant_peces" class="form-control" value="0">
+                </div>
+                <div class="input-group input-group-sm mb-1">
+                    <span class="input-group-text w-50">Reproductores</span>
+                    <input type="number" name="cant_reproductores" class="form-control" value="0">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
             <div class="card compact-card">
                 <div class="card-body py-2">
                     <label class="form-label fw-bold small">RECOMENDACIONES / OBSERVACIONES</label>
@@ -375,23 +470,46 @@ try {
     <script src="js/script.js"></script>
 
     <script>
-        // Función para agregar familiares dinámicamente
-        function agregarFamiliar() {
-            const table = document.getElementById('tablaFamilia').getElementsByTagName('tbody')[0];
-            const newRow = table.insertRow();
-            newRow.innerHTML = `
-                <td><input type="text" name="fam_nombre[]" class="table-input" placeholder="Nombre completo"></td>
-                <td><input type="number" name="fam_edad[]" class="table-input" placeholder="0"></td>
-                <td><input type="text" name="fam_cedula[]" class="table-input" placeholder="V-12345678"></td>
-                <td><input type="text" name="fam_parentesco[]" class="table-input" placeholder="Ej: HIJO"></td>
-                <td><input type="text" name="fam_ocupacion[]" class="table-input" placeholder="ESTUDIANTE"></td>
-                <td class="text-center"><button type="button" class="btn btn-danger btn-sm py-0" onclick="eliminarFila(this)">x</button></td>
-            `;
+    // Función para agregar familiares dinámicamente
+    function agregarFamiliar() {
+        const tbody = document.getElementById('tablaFamilia').getElementsByTagName('tbody')[0];
+        const rows = tbody.rows;
+        
+        if (rows.length >= 3) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Límite alcanzado',
+                text: 'Solo se permiten hasta 3 familiares.',
+                confirmButtonText: 'Aceptar'
+            });
+            return;
         }
+        
+        const newRow = tbody.insertRow();
+        newRow.innerHTML = `
+            <td><input type="text" name="fam_nombre[]" class="table-input" placeholder="Nombre completo"></td>
+            <td><input type="number" name="fam_edad[]" class="table-input" placeholder="0"></td>
+            <td><input type="text" name="fam_cedula[]" class="table-input" placeholder="V-12345678"></td>
+            <td><input type="text" name="fam_parentesco[]" class="table-input" placeholder="Ej: HIJO"></td>
+            <td><input type="text" name="fam_ocupacion[]" class="table-input" placeholder="ESTUDIANTE"></td>
+            <td class="text-center"><button type="button" class="btn btn-danger btn-sm py-0" onclick="eliminarFila(this)">x</button></td>
+        `;
+        
+        // Deshabilitar botón si se alcanza el límite
+        if (tbody.rows.length >= 3) {
+            document.getElementById('btnAgregarFamiliar').disabled = true;
+        }
+    }
 
-        function eliminarFila(btn) {
-            btn.closest('tr').remove();
+    function eliminarFila(btn) {
+        btn.closest('tr').remove();
+        
+        // Habilitar botón si baja del límite
+        const tbody = document.getElementById('tablaFamilia').getElementsByTagName('tbody')[0];
+        if (tbody.rows.length < 3) {
+            document.getElementById('btnAgregarFamiliar').disabled = false;
         }
+    }
 
         // Validación para campos numéricos
         ['cedula', 'telefono'].forEach(id => {

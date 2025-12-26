@@ -5,11 +5,28 @@ $('#example').DataTable({
          "<'row'<'col-sm-6'i><'col-sm-6 text-end'p>>",
     buttons: [
         {
-            extend: "excelHtml5",
-            text: '<ion-icon name="receipt-sharp"></ion-icon>',
-            titleAttr: "Exportar a Excel",
-            className: "btn btn-success"
-        },
+        extend: "excelHtml5",
+        text: '<ion-icon name="receipt-sharp"></ion-icon>',
+        titleAttr: "Exportar a Excel",
+        className: "btn btn-success",
+        
+        // 🔥 LA CLAVE: Usar un atributo personalizado y manejar el clic por separado
+        init: function(api, node, config) {
+            // Quitar el manejador de eventos de DataTables
+            $(node).off('click');
+            
+            // Agregar nuestro propio manejador
+            $(node).on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Simplemente descargar el archivo
+                window.location.href = 'bd/export_excel.php';
+                
+                return false;
+            });
+        }
+    },
         {
             extend: "pdfHtml5",
             text: '<ion-icon name="document"></ion-icon>',
@@ -38,151 +55,126 @@ $('#example').DataTable({
     }
 });
 
-// Al hacer clic en editar, cargar datos en el modal
-$(document).on('click', '.editar', function() {
+// ✅ FUNCIONAL: Modal full-screen para editar productores
+$(document).on('click', '.editar', function(){
     var id = $(this).data('id');
+    
+    console.log('Editando productor ID:', id);
+    
+    var modalEl = document.getElementById('modalEditarFull');
+    var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl, { keyboard: false });
+
+    $('#modalEditarBody').html(`
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-3">Cargando datos del productor...</p>
+        </div>
+    `);
+    
+    modal.show();
+
+    // ✅ CORREGIDO: Esta es la ruta CORRECTA que vamos a usar
     $.ajax({
-        url: 'bd/recibir.php',
-        type: 'POST',
+        url: 'bd/editar_productor.php', // NUEVO ARCHIVO que vamos a crear
+        type: 'GET',
         data: { id: id },
-        dataType: 'json',
-        success: function(data) {
-            console.log(data); // Para depuración
-            if(data && !data.error){
-                $('#ID').val(data.ID);
-                $('#Nombres').val(data.Nombres);
-                $('#Apellidos').val(data.Apellidos);
-                $('#Cedula_Identidad_o_Estudiantil').val(data['Cedula Identidad o Estudiantil']);
-                $('#Representante').val(data.Representante);
-                $('#Telefono').val(data.Telefono);
-                $('#Sexo').val(data.Sexo);
-                $('#Lugar_Nacimiento').val(data['Lugar Nacimiento']);
-                $('#Entidad_Federal').val(data['Entidad Federal']);
-                $('#Etnia').val(data.Etnia);
-                $('#Fecha_de_Nacimiento').val(data['Fecha de Nacimiento']);
-                $('#Edad').val(data.Edad);
-                $('#Correo_Estudiante').val(data['Correo Estudiante']);
-                $('#Direccion_Estudiante').val(data['Direccion Estudiante']);
-                $('#Posee_Discapacidad').val(data['Posee Discapacidad']);
-                $('#Carnet_Discapacidad').val(data['Carnet Discapacidad']);
-                $('#Recibe_Apoyo_Especial').val(data['Recibe Apoyo Especial']);
-                $('#Recibe_Apoyo_de_Otro_Organismo').val(data['Recibe Apoyo de Otro Organismo']);
-                $('#Recibe_Ayuda_Tecnica').val(data['Recibe Ayuda Tecnica']);
-                $('#Embarazo').val(data.Embarazo);
-                $('#Tiene_Control').val(data['Tiene Control']);
-                $('#Medico_Tratante').val(data['Medico Tratante']);
-                $('#Centro_Hospitalario').val(data['Centro Hospitalario']);
-                $('#Pantalon').val(data.Pantalon);
-                $('#Camisa').val(data.Camisa);
-                $('#Zapato').val(data.Zapato);
-                $('#Año').val(data.Año);
-                $('#Seccion').val(data.Seccion);
-                $('#Cedula_Representante').val(data['Cedula Representante']);
-                $('#Parentesco').val(data.Parentesco);
-                $('#Autor_Autorizado').val(data['Autor Autorizado']);
-                $('#Correo_Representante').val(data['Correo Representante']);
-                $('#Direccion_Representante').val(data['Direccion Representante']);
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se encontraron datos del estudiante.'
-                });
-            }
+        success: function(html){
+            $('#modalEditarBody').html(html);
         },
-        error: function(xhr, status, error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Error en la petición AJAX: ' + error
-            });
+        error: function(xhr, status, error){
+            console.error('Error:', error);
+            $('#modalEditarBody').html(`
+                <div class="alert alert-danger m-4">
+                    <h4>Error al cargar</h4>
+                    <p>No se pudo cargar el formulario de edición.</p>
+                    <p><strong>Detalles:</strong> ${error} (Status: ${xhr.status})</p>
+                    <p class="mt-3">
+                        <button class="btn btn-primary" onclick="window.location.reload()">Recargar página</button>
+                    </p>
+                </div>
+            `);
         }
     });
 });
 
-// Al enviar el formulario, actualizar datos
-$('#formEditar').on('submit', function(e){
+// ✅ FUNCIONAL: Guardar edición del productor
+$(document).on('click', '#btnGuardarEdicion', function(e){
     e.preventDefault();
+    
+    var frm = $('#formEditarProductor');
+    if (!frm.length) {
+        Swal.fire('Error', 'Formulario no encontrado', 'error');
+        return;
+    }
+
+    var btn = $(this);
+    btn.prop('disabled', true).text('Guardando...');
+
     $.ajax({
-        url: 'bd/actualizar_estudiante.php',
+        url: 'bd/guardar_productor.php', // NUEVO ARCHIVO que vamos a crear
         type: 'POST',
-        data: $(this).serialize(),
+        data: frm.serialize(),
         dataType: 'json',
         success: function(resp){
-            console.log(resp); // Para depuración
             if(resp.success){
+                // Cerrar modal
+                var modalEl = document.getElementById('modalEditarFull');
+                var modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                
+                // Recargar la tabla
                 Swal.fire({
                     icon: 'success',
-                    title: '¡Actualizado!',
-                    text: 'Estudiante actualizado correctamente',
-                    timer: 1800,
+                    title: '¡Guardado!',
+                    text: 'Datos actualizados correctamente',
+                    timer: 1500,
                     showConfirmButton: false
-                });
-                $('#modalEditar').modal('hide');
-                setTimeout(function(){
+                }).then(() => {
                     location.reload();
-                }, 1800);
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudo actualizar el estudiante'
                 });
+            } else {
+                Swal.fire('Error', resp.message || 'Error al guardar', 'error');
             }
         },
-        error: function(xhr, status, error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Error en la petición AJAX: ' + error
-            });
+        error: function(xhr){
+            Swal.fire('Error', 'Error del servidor: ' + xhr.status, 'error');
+        },
+        complete: function(){
+            btn.prop('disabled', false).text('Guardar Cambios');
         }
     });
 });
 
-// Eliminar estudiante con SweetAlert2
+// Eliminar productor
 $(document).on('click', '.eliminar', function(){
     var id = $(this).data('id');
+    
     Swal.fire({
-        title: '¿Estás seguro?',
-        text: "¡Esta acción no se puede deshacer!",
+        title: '¿Eliminar productor?',
+        text: "Esta acción no se puede deshacer",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Eliminar',
+        confirmButtonText: 'Sí, eliminar',
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: 'bd/eliminar_estudiante.php',
+                url: 'bd/eliminar_productor.php',
                 type: 'POST',
                 data: { id: id },
                 dataType: 'json',
                 success: function(resp){
                     if(resp.success){
-                        Swal.fire(
-                            '¡Eliminado!',
-                            'El estudiante ha sido eliminado.',
-                            'success'
-                        );
-                        setTimeout(function(){
-                            location.reload();
-                        }, 1200);
+                        Swal.fire('Eliminado!', 'Productor eliminado', 'success');
+                        setTimeout(() => location.reload(), 1000);
                     } else {
-                        Swal.fire(
-                            'Error',
-                            'No se pudo eliminar el estudiante',
-                            'error'
-                        );
+                        Swal.fire('Error', resp.message, 'error');
                     }
                 },
                 error: function(){
-                    Swal.fire(
-                        'Error',
-                        'Error en la petición AJAX',
-                        'error'
-                    );
+                    Swal.fire('Error', 'Error en la conexión', 'error');
                 }
             });
         }

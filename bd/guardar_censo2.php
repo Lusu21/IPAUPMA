@@ -69,7 +69,7 @@ try {
     
     // Obtener y sanitizar datos del predio
     $nombre_predio          = trim(mb_strtoupper($_POST['nombre_predio'] ?? ''));
-    $hectareas              = floatval($_POST['hectareas'] ?? 0.0);
+    $hectareas              = !empty($_POST['hectareas']) ? floatval($_POST['hectareas']) : 0.0;
     
     // Las checkboxes no enviadas son NULL, por lo que se convierten a 0
     $posee_casa             = isset($_POST['posee_casa']) ? 1 : 0;
@@ -133,15 +133,18 @@ try {
     $canal_comercializacion = trim(mb_strtoupper($_POST['canal_comercializacion'] ?? ''));
     $cultivo_principal      = trim(mb_strtoupper($_POST['cultivo_principal'] ?? ''));
     $cultivo_secundario     = trim(mb_strtoupper($_POST['cultivo_secundario'] ?? ''));
+    $cantidad_cultivada     = trim(mb_strtoupper($_POST['cantidad_cultivada'] ?? ''));
     $venta_producto         = trim(mb_strtoupper($_POST['venta_producto'] ?? ''));
     
-    $sql_agricultura = "INSERT INTO agricultura (
-        predio_id, tipo_cultivo, area_cultivada, tiempo_sembrado, 
-        canal_comercializacion, cultivo_principal, cultivo_secundario, venta_producto
-    ) VALUES (
-        :predio_id, :tipo_cultivo, :area_cultivada, :tiempo_sembrado, 
-        :canal_comercializacion, :cultivo_principal, :cultivo_secundario, :venta_producto
-    )";
+   $sql_agricultura = "INSERT INTO agricultura (
+    predio_id, tipo_cultivo, area_cultivada, tiempo_sembrado, 
+    canal_comercializacion, cultivo_principal, cultivo_secundario, 
+    cantidad_cultivada, venta_producto
+) VALUES (
+    :predio_id, :tipo_cultivo, :area_cultivada, :tiempo_sembrado, 
+    :canal_comercializacion, :cultivo_principal, :cultivo_secundario,
+    :cantidad_cultivada, :venta_producto
+)"; 
     
     $stmt_agricultura = $pdo->prepare($sql_agricultura);
     $stmt_agricultura->execute([
@@ -152,41 +155,58 @@ try {
         'canal_comercializacion' => $canal_comercializacion,
         'cultivo_principal'      => $cultivo_principal,
         'cultivo_secundario'     => $cultivo_secundario,
+        'cantidad_cultivada'     => $cantidad_cultivada, 
         'venta_producto'         => $venta_producto
     ]);
     
     // -----------------------------------------------------
-    // IV. INSERTAR GANADERÍA/ANIMALES (Tabla: ganaderia)
+    // IV. INSERTAR GANADERÍA/ANIMALES (Tabla: ganaderia) - ¡VERSIÓN CORREGIDA CON TODOS LOS CAMPOS!
     // -----------------------------------------------------
 
+    // CORRECCIÓN FINAL - TODOS LOS CAMPOS QUE EXISTEN EN LA TABLA
     $cantidades_ganado = [
-        'cant_vaca'              => intval($_POST['cant_vaca'] ?? 0),
-        'cant_toro'              => intval($_POST['cant_toro'] ?? 0),
-        'cant_novillo'           => intval($_POST['cant_novillo'] ?? 0),
-        'cant_becerros'          => intval($_POST['cant_becerros'] ?? 0),
-        'cant_bufalo'            => intval($_POST['cant_bufalo'] ?? 0),
-        'cant_chivo'             => intval($_POST['cant_chivo'] ?? 0),
-        'cant_cabra'             => intval($_POST['cant_cabra'] ?? 0),
-        'cant_ovejo'             => intval($_POST['cant_ovejo'] ?? 0),
-        'cant_verraco'           => intval($_POST['cant_verraco'] ?? 0),
-        'cant_lechones'          => intval($_POST['cant_lechones'] ?? 0),
-        'cant_pollo_engorde'     => intval($_POST['cant_pollo_engorde'] ?? 0),
-        'cant_gallinas_ponedoras'=> intval($_POST['cant_gallinas_ponedoras'] ?? 0),
-        'cant_gallinas_patio'    => intval($_POST['cant_gallinas_patio'] ?? 0),
-        'cant_alevines'          => intval($_POST['cant_alevines'] ?? 0),
-        'cant_peces'             => intval($_POST['cant_peces'] ?? 0),
+        'cant_vaca'                 => intval($_POST['cant_vaca'] ?? 0),
+        'cant_toro'                 => intval($_POST['cant_toro'] ?? 0),
+        'cant_novillo'              => intval($_POST['cant_novillo'] ?? 0),
+        'cant_maticas'              => intval($_POST['cant_maticas'] ?? 0),
+        'cant_mautes'               => intval($_POST['cant_mautes'] ?? 0),
+        'cant_becerros'             => intval($_POST['cant_becerros'] ?? 0),
+        'cant_becerras'             => intval($_POST['cant_becerras'] ?? 0),
+        'cant_bufalo'               => intval($_POST['cant_bufalo'] ?? 0),
+        'cant_bufala'               => intval($_POST['cant_bufala'] ?? 0),
+        'cant_chivo'                => intval($_POST['cant_chivo'] ?? 0),
+        'cant_cabra'                => intval($_POST['cant_cabra'] ?? 0),
+        'cant_ovejo'                => intval($_POST['cant_ovejo'] ?? 0),
+        'cant_oveja'                => intval($_POST['cant_oveja'] ?? 0),
+        'cant_verraco'              => intval($_POST['cant_verraco'] ?? 0),
+        'cant_cerda_madre'          => intval($_POST['cant_cerda_madre'] ?? 0),
+        'cant_levantes'             => intval($_POST['cant_levantes'] ?? 0),
+        'cant_lechones'             => intval($_POST['cant_lechones'] ?? 0),
+        'cant_pollo_engorde'        => intval($_POST['cant_pollo_engorde'] ?? 0),
+        'cant_gallinas_ponedoras'   => intval($_POST['cant_gallinas_ponedoras'] ?? 0),
+        'cant_gallinas_patio'       => intval($_POST['cant_gallinas_patio'] ?? 0),
+        'cant_alevines'             => intval($_POST['cant_alevines'] ?? 0),
+        'cant_peces'                => intval($_POST['cant_peces'] ?? 0),
+        'cant_reproductores'        => intval($_POST['cant_reproductores'] ?? 0),
     ];
 
+    // SQL ACTUALIZADO CON TODOS LOS CAMPOS DE LA TABLA
     $sql_ganaderia = "INSERT INTO ganaderia (
-        predio_id, cant_vaca, cant_toro, cant_novillo, cant_becerros, cant_bufalo, 
-        cant_chivo, cant_cabra, cant_ovejo, cant_verraco, cant_lechones, 
-        cant_pollo_engorde, cant_gallinas_ponedoras, cant_gallinas_patio, 
-        cant_alevines, cant_peces
+        predio_id, 
+        cant_vaca, cant_toro, cant_novillo, cant_maticas, cant_mautes,
+        cant_becerros, cant_becerras, cant_bufalo, cant_bufala,
+        cant_chivo, cant_cabra, cant_ovejo, cant_oveja,
+        cant_verraco, cant_cerda_madre, cant_levantes, cant_lechones,
+        cant_pollo_engorde, cant_gallinas_ponedoras, cant_gallinas_patio,
+        cant_alevines, cant_peces, cant_reproductores
     ) VALUES (
-        :predio_id, :cant_vaca, :cant_toro, :cant_novillo, :cant_becerros, :cant_bufalo, 
-        :cant_chivo, :cant_cabra, :cant_ovejo, :cant_verraco, :cant_lechones, 
-        :cant_pollo_engorde, :cant_gallinas_ponedoras, :cant_gallinas_patio, 
-        :cant_alevines, :cant_peces
+        :predio_id, 
+        :cant_vaca, :cant_toro, :cant_novillo, :cant_maticas, :cant_mautes,
+        :cant_becerros, :cant_becerras, :cant_bufalo, :cant_bufala,
+        :cant_chivo, :cant_cabra, :cant_ovejo, :cant_oveja,
+        :cant_verraco, :cant_cerda_madre, :cant_levantes, :cant_lechones,
+        :cant_pollo_engorde, :cant_gallinas_ponedoras, :cant_gallinas_patio,
+        :cant_alevines, :cant_peces, :cant_reproductores
     )";
     
     $stmt_ganaderia = $pdo->prepare($sql_ganaderia);
@@ -264,8 +284,10 @@ try {
         $pdo->rollBack();
     }
     
-    // Redirigir con mensaje de error
-    header("Location: ../inscripcion_censo.php?error=1");
+    // Mostrar error para debug
+    echo "ERROR: " . $e->getMessage();
+    echo "<br>Archivo: " . $e->getFile();
+    echo "<br>Línea: " . $e->getLine();
     exit();
 }
 ?>

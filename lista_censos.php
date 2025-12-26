@@ -102,7 +102,7 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
                 <li><a href="dashboard.php"><ion-icon name="desktop-outline"></ion-icon><span>Dashboard</span></a></li>
                 <li><a href="usuarios.php"><ion-icon name="people-outline"></ion-icon><span>Usuarios</span></a></li>
                 <li><a id="lista-estudiantes" href="lista-estudiantes.php"><ion-icon name="person-outline"></ion-icon><span>Lista de Censados</span></a></li>
-                <li><a id="añadir_estudiante" href="inscripcion_censo.php"><ion-icon name="person-add-outline"></ion-icon><span>inscripcion censo</span></a></li>
+                <li><a id="añadir_estudiante" href="inscripcion_censo.php"><ion-icon name="person-add-outline"></ion-icon><span>inscripcion Censo</span></a></li>
                 <li><a href="bd/logout.php" id="logoutLink"><ion-icon name="log-out-outline"></ion-icon><span>Cerrar Sesión</span></a></li>
             </ul>
         </nav>
@@ -162,13 +162,12 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
                             <td><?php echo htmlspecialchars($dat['sector']); ?></td>
                             <td>
                                 <div class="d-flex gap-1">
+                                    <!-- botón Editar: quitado data-bs-toggle/data-bs-target para manejarlo por JS -->
                                     <button type="button" class="btn btn-warning btn-sm editar"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalEditar"
                                         data-id="<?php echo htmlspecialchars($dat['id']); ?>">
                                         <ion-icon name="create-outline"></ion-icon>
                                     </button>
-                                    <a class="btn btn-info btn-sm info" target="_blank" href="bd/info_estudiante.php?id=<?php echo urlencode($dat['id']); ?>">
+                                    <a class="btn btn-info btn-sm info" target="_blank" href="bd/info_productor.php?id=<?php echo urlencode($dat['id']); ?>">
                                         <ion-icon name="information-circle-outline"></ion-icon>
                                     </a>
                                     <button type="button" class="btn btn-danger btn-sm eliminar" data-id="<?php echo htmlspecialchars($dat['id']); ?>">
@@ -206,6 +205,25 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
             </div>
         </div>
     </div>
+
+    <!-- Modal edición FULLSCREEN (nuevo) -->
+        <div class="modal fade" id="modalEditarFull" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditarLabel">Editar Productor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" id="modalEditarBody" style="overflow:auto; max-height: calc(100vh - 140px);">
+                <!-- form cargado por AJAX -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnGuardarEdicion" class="btn btn-primary">Guardar Cambios</button>
+            </div>
+            </div>
+        </div>
+        </div>
 
     <!-- Scripts: jQuery -> DataTables -> lista_censos.js -> resto -->
     <script src="js/jquery-3.7.0.min.js"></script>
