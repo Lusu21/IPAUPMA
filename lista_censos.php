@@ -99,8 +99,14 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
 
         <nav class="navegacion">
             <ul>
-                <li><a href="dashboard.php"><ion-icon name="desktop-outline"></ion-icon><span>Dashboard</span></a></li>
+                <li><a href="admin.php"><ion-icon name="desktop-outline"></ion-icon><span>Dashboard</span></a></li>
                 <li><a href="usuarios.php"><ion-icon name="people-outline"></ion-icon><span>Usuarios</span></a></li>
+                 <li>
+                    <a href="empleados.php">
+                        <ion-icon name="id-card-outline"></ion-icon>
+                        <span>Empleados</span>
+                    </a>
+                </li>
                 <li><a id="lista-estudiantes" href="lista-estudiantes.php"><ion-icon name="person-outline"></ion-icon><span>Lista de Censados</span></a></li>
                 <li><a id="añadir_estudiante" href="inscripcion_censo.php"><ion-icon name="person-add-outline"></ion-icon><span>inscripcion Censo</span></a></li>
                 <li><a href="bd/logout.php" id="logoutLink"><ion-icon name="log-out-outline"></ion-icon><span>Cerrar Sesión</span></a></li>

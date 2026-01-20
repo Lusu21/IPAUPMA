@@ -20,6 +20,7 @@ if ($result->num_rows === 0 || $result->fetch_assoc()['rol'] !== 'admin') {
     //Redirigir con mensaje genérico (no revelar detalles)
     header("Location: index.php?error=acceso-denegado");
     exit();
+
 }
 
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -42,6 +43,117 @@ if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
 }
 
+// Consultar totales dinámicos
+$sqlcen = "SELECT COUNT(*) as total FROM productores";
+$resultEst = $conn->query($sqlcen);
+$totalproductores = $resultEst->fetch_assoc()['total'] ?? 0;
+
+$sqlpar = "SELECT COUNT(*) as total FROM parroquias";
+$resultPar = $conn->query($sqlpar);
+$totalparroquias = $resultPar->fetch_assoc()['total'] ?? 0;
+
+$sqlusu = "SELECT COUNT(*) as total FROM usuarios";
+$resultUsu = $conn->query($sqlusu);
+$totalusuarios = $resultUsu->fetch_assoc()['total'] ?? 0;
+
+$sqlemp = "SELECT COUNT(*) as total FROM empleados";
+$resultEmp = $conn->query($sqlemp);
+$totalempleados = $resultEmp->fetch_assoc()['total'] ?? 0;
+
+$sqlAnimales = "
+    SELECT 
+        SUM(cant_vaca + cant_toro + cant_novillo + cant_maticas + cant_mautes + 
+            cant_becerros + cant_becerras + cant_bufalo + cant_bufala + 
+            cant_chivo + cant_cabra + cant_ovejo + cant_oveja + 
+            cant_verraco + cant_cerda_madre + cant_levantes + cant_lechones + 
+            cant_pollo_engorde + cant_gallinas_ponedoras + cant_gallinas_patio + 
+            cant_alevines + cant_peces + cant_reproductores) as total_animales
+    FROM ganaderia
+";
+
+$resultAnimales = $conn->query($sqlAnimales);
+$totalAnimales = $resultAnimales->fetch_assoc()['total_animales'] ?? 0;
+
+// Agregar consulta para cálculos dinámicos de parroquias con categorías
+$sql = "SELECT 
+    p.nombre as parroquia,
+    COUNT(pr.id) as total,
+    (COUNT(pr.id) * 100.0 / (SELECT COUNT(*) FROM productores)) as porcentaje
+FROM parroquias p
+LEFT JOIN productores pr ON p.id = pr.parroquia_id
+GROUP BY p.id
+ORDER BY total DESC";
+
+// Agregar consulta para últimos registros de productores
+$sqlUltimos = "SELECT pr.nombre as nombre_productor, p.nombre as parroquia 
+               FROM productores pr 
+               LEFT JOIN parroquias p ON pr.parroquia_id = p.id 
+               ORDER BY pr.id DESC LIMIT 4";
+$resultUltimos = $conn->query($sqlUltimos);
+$ultimosRegistros = [];
+while ($row = $resultUltimos->fetch_assoc()) {
+    $ultimosRegistros[] = $row;
+}
+
+$result = $conn->query($sql);
+
+// Calcular estadísticas
+$totales = [];
+while($row = $result->fetch_assoc()) {
+    $totales[] = $row['total'];
+}
+
+// Calcular percentiles
+sort($totales);
+$percentil70 = $totales[floor(count($totales) * 0.7)];
+$percentil30 = $totales[floor(count($totales) * 0.3)];
+
+// Asignar categorías dinámicamente
+$result->data_seek(0); // Volver al inicio del resultset
+$parroquiasConCategoria = [];
+while($row = $result->fetch_assoc()) {
+    if ($row['total'] >= $percentil70) {
+        $categoria = 'alta';
+    } elseif ($row['total'] >= $percentil30) {
+        $categoria = 'media';
+    } else {
+        $categoria = 'baja';
+    }
+    
+    // Guardar con categoría dinámica
+    $parroquiasConCategoria[] = [
+        'nombre' => $row['parroquia'],
+        'total' => $row['total'],
+        'porcentaje' => $row['porcentaje'],
+        'categoria' => $categoria
+    ];
+}
+
+// Calcular máximo para barras
+$maxTotal = max(array_column($parroquiasConCategoria, 'total'));
+
+// Calcular promedio
+$promedio = $totalproductores > 0 ? $totalproductores / $totalparroquias : 0;
+
+// Preparar datos para Chart.js
+$labels = [];
+$data = [];
+$backgroundColors = [];
+foreach ($parroquiasConCategoria as $parroquia) {
+    $labels[] = $parroquia['nombre'];
+    $data[] = $parroquia['total'];
+    if ($parroquia['categoria'] == 'alta') {
+        $backgroundColors[] = 'rgba(52, 152, 219, 0.8)'; // Azul sólido para alta
+    } elseif ($parroquia['categoria'] == 'media') {
+        $backgroundColors[] = 'rgba(46, 204, 113, 0.8)'; // Verde sólido para media
+    } else {
+        $backgroundColors[] = 'rgba(243, 156, 18, 0.8)'; // Naranja sólido para baja
+    }
+}
+$labelsJson = json_encode($labels);
+$dataJson = json_encode($data);
+$backgroundColorsJson = json_encode($backgroundColors);
+
 // Consultar administradores
 $sqlAdmin = "SELECT `id`, `username`, `password`, `rol` FROM `usuarios` WHERE `rol`='admin'";
 $resultAdmin = $conn->query($sqlAdmin);
@@ -62,6 +174,9 @@ $resultUsuario = $conn->query($sqlUsuario);
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/graficas.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Agregar Chart.js si no está -->
+     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script> <!-- Plugin para mostrar valores en barras -->
 </head>
 
 <body>
@@ -82,7 +197,7 @@ $resultUsuario = $conn->query($sqlUsuario);
         <nav class="navegacion">
             <ul>
                 <li>
-                    <a id="dashboard" href="dashboard.php">
+                    <a id="dashboard" href="admin.php">
                         <ion-icon name="desktop-outline"></ion-icon>
                         <span>Dashboard</span>
                     </a>
@@ -91,6 +206,12 @@ $resultUsuario = $conn->query($sqlUsuario);
                     <a href="usuarios.php">
                         <ion-icon name="people-outline"></ion-icon>
                         <span>Usuarios</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="empleados.php">
+                        <ion-icon name="id-card-outline"></ion-icon>
+                        <span>Empleados</span>
                     </a>
                 </li>
                 <li>
@@ -140,6 +261,136 @@ $resultUsuario = $conn->query($sqlUsuario);
 
     <!-- Contenido principal (fuera de la barra lateral) -->
     <main class="contenido-principal">
+         <!-- Cards alineados en el dashboard -->
+        <div class="row">
+        <!-- Card  Productores -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card dashboard-card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Productores
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800"><?= $totalproductores ?></div>
+                            </div>
+                            <div class="col-auto d-flex align-items-center">
+                                <ion-icon name="man-outline" style="font-size: 3.0rem; color: #198754;"></ion-icon>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+              <!-- Card  Parroquias -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card dashboard-card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Parroquias
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800"><?= $totalparroquias ?></div>
+                            </div>
+                            <div class="col-auto d-flex align-items-center">
+                                <ion-icon name="business-outline" style="font-size: 3rem; color: #0d6efd;"></ion-icon>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <!-- Card  Usuarios -->
+                  <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card dashboard-card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Usuarios
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800"><?= $totalusuarios ?></div>
+                            </div>
+                            <div class="col-auto d-flex align-items-center">
+                                <ion-icon name="person-outline" style="font-size: 3rem; color: #20c9e6;"></ion-icon>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- card Empleados -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card dashboard-card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Empleados
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800"><?= $totalempleados ?></div>
+                            </div>
+                            <div class="col-auto d-flex align-items-center">
+                                <ion-icon name="id-card-outline" style="font-size: 3rem; color: #ffc107;"></ion-icon>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de Productores por Parroquia -->
+        <div class="dashboard-container">
+            <!-- Encabezado -->
+            <div class="header">
+                <h1>
+                    <ion-icon name="podium-outline"></ion-icon>
+                    Productores por Parroquia
+                </h1>
+            </div>
+            
+            <!-- Estadísticas rápidas -->
+            <div class="stats-summary">
+                <div class="stat-box">
+                     <div class="stat-number"><?php echo number_format($totalAnimales); ?></div>
+                    <div class="stat-label">Total Animales</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number"><?php echo $maxTotal; ?></div>
+                    <div class="stat-label">Máximo (<?php echo $parroquiasConCategoria[0]['nombre']; ?>)</div>
+                </div>
+            </div>
+            
+            <!-- Área del gráfico -->
+            <div class="chart-area">
+                <h2 class="chart-title">
+                    <i class="fas fa-chart-line"></i>
+                    Distribución de Productores por Parroquia
+                </h2>
+                <canvas id="chartProductores" style="max-width: 100%; max-height: 400px;"></canvas> <!-- Canvas para Chart.js -->
+                
+                <!-- Leyenda -->
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(90deg, #3498db, #2980b9);"></div>
+                        <span>Alta densidad (≥<?php echo $percentil70; ?> productores)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(90deg, #2ecc71, #27ae60);"></div>
+                        <span>Media densidad (<?php echo $percentil30; ?>-<?php echo $percentil70; ?> productores)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(90deg, #f39c12, #e67e22);"></div>
+                        <span>Baja densidad (<<?php echo $percentil30; ?> productores)</span>
+                    </div>
+                </div>
+                <!-- Últimos Registros -->
+                <div class="ultimos-registros" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-family: monospace; font-size: 0.85rem;">
+                    <strong>ÚLTIMOS REGISTROS</strong><br>
+                    <br>
+                    <?php foreach ($ultimosRegistros as $registro): ?>
+                        • <?php echo htmlspecialchars(substr($registro['nombre_productor'], 0, 15)); ?> - <?php echo htmlspecialchars(substr($registro['parroquia'], 0, 30)); ?><br>
+                    <?php endforeach; ?>
+            </div>
+        </div>   
     </main>
 
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
@@ -205,6 +456,54 @@ $resultUsuario = $conn->query($sqlUsuario);
                     window.location.href = 'bd/logout.php'; // Redirige a logout
                 }
             });
+        });
+
+        // Gráfico de barras verticales con Chart.js
+        const ctx = document.getElementById('chartProductores').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar', // Barras verticales
+            data: {
+                labels: <?php echo $labelsJson; ?>,
+                datasets: [{
+                    label: 'Cantidad de Productores',
+                    data: <?php echo $dataJson; ?>,
+                    backgroundColor: <?php echo $backgroundColorsJson; ?>,
+                    borderColor: 'rgba(0, 0, 0, 0.1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                aspectRatio: 2, // Corregido: era "AspectRatio" (mayúscula incorrecta)
+                plugins: {
+                    legend: {
+                        display: false // Ocultar leyenda interna, usamos la externa
+                    },
+                    datalabels: {
+                        anchor: 'end', // Posición encima de la barra
+                        align: 'end', // Alineación
+                        formatter: (value) => value, // Mostrar el valor numérico
+                        color: '#000', // Color del texto
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            display: false // Ocultar los números del eje Y
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            maxRotation: 45, // Rotar etiquetas si son largas
+                            minRotation: 0
+                        }
+                    }
+                }
+            }
         });
     </script>
 </body>

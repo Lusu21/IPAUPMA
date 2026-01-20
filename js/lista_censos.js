@@ -55,7 +55,7 @@ $('#example').DataTable({
     }
 });
 
-// ✅ FUNCIONAL: Modal full-screen para editar productores
+// Modal full-screen para editar productores
 $(document).on('click', '.editar', function(){
     var id = $(this).data('id');
     
@@ -73,7 +73,7 @@ $(document).on('click', '.editar', function(){
     
     modal.show();
 
-    // ✅ CORREGIDO: Esta es la ruta CORRECTA que vamos a usar
+    //CORREGIDO: Esta es la ruta CORRECTA que vamos a usar
     $.ajax({
         url: 'bd/editar_productor.php', // NUEVO ARCHIVO que vamos a crear
         type: 'GET',
