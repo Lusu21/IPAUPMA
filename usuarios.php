@@ -53,6 +53,7 @@ $resultado->closeCursor();
     <link href="css/datatables.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="icons/logo.ico" />
     <style>
         .section-title {
             font-size: 1.5rem;
@@ -106,7 +107,7 @@ $resultado->closeCursor();
 
         <nav class="navegacion">
             <ul>
-                <li><a href="admin.php"><ion-icon name="desktop-outline"></ion-icon><span>Dashboard</span></a></li>
+                <li><a href="admin.php"><ion-icon name="desktop-outline"></ion-icon><span>Panel General</span></a></li>
                 <li><a id="usuarios" href="usuarios.php"><ion-icon name="people-outline"></ion-icon><span>Usuarios</span></a></li>
                 <li>
                     <a href="empleados.php">
@@ -115,7 +116,13 @@ $resultado->closeCursor();
                     </a>
                 </li>
                 <li><a href="lista_censos.php"><ion-icon name="person-outline"></ion-icon><span>Lista de Censados</span></a></li>
-                <li><a href="inscripcion_censo.php"><ion-icon name="person-add-outline"></ion-icon><span>inscripcion Censo</span></a></li>
+                <li><a href="inscripcion_censo.php"><ion-icon name="person-add-outline"></ion-icon><span>Inscripcion Censo</span></a></li>
+                <li>
+                    <a href="vacunas.php">
+                        <ion-icon name="medkit-outline"></ion-icon>
+                        <span>Vacunas</span>
+                    </a>
+                </li>
                 <li><a href="bd/logout.php" id="logoutLink"><ion-icon name="log-out-outline"></ion-icon><span>Cerrar Sesión</span></a></li>
             </ul>
         </nav>
@@ -234,14 +241,14 @@ $resultado->closeCursor();
                         <div class="mb-3" id="input-username-container" style="display: block;">
                             <label class="form-label">Nombre de Usuario *</label>
                             <input type="text" name="nuevo_username" class="form-control" id="input-username" 
-                                   placeholder="Ingrese el nombre de usuario" maxlength="50" required>
+                                   placeholder="Ingrese el nombre de usuario" maxlength="30" required>
                             <div class="form-text small-text">Este será el nombre para iniciar sesión.</div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Contraseña *</label>
                             <input type="password" name="password" class="form-control" required 
-                                   placeholder="Mínimo 8 caracteres" minlength="8">
+                                   placeholder="Mínimo 8 caracteres" minlength="8" maxlength="30">
                         </div>
 
                         <div class="mb-3">
@@ -332,8 +339,8 @@ $resultado->closeCursor();
         console.log("=== INICIANDO SISTEMA DE USUARIOS ===");
         
         // Verificar que los elementos existen
-        console.log("Botón Agregar Usuario:", $('[data-bs-target="#modalAgregarUsuario"]').length ? "✅ ENCONTRADO" : "❌ NO ENCONTRADO");
-        console.log("Modal Agregar Usuario:", $('#modalAgregarUsuario').length ? "✅ ENCONTRADO" : "❌ NO ENCONTRADO");
+        //console.log("Botón Agregar Usuario:", $('[data-bs-target="#modalAgregarUsuario"]').length ? "✅ ENCONTRADO" : "❌ NO ENCONTRADO");
+        //console.log("Modal Agregar Usuario:", $('#modalAgregarUsuario').length ? "✅ ENCONTRADO" : "❌ NO ENCONTRADO");
         
         // Inicializar DataTable
         $('#tablaUsuarios').DataTable({

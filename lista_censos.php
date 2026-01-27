@@ -77,6 +77,7 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/datatables.css" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="icons/logo.ico" />
 </head>
 <body>
 
@@ -99,7 +100,7 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
 
         <nav class="navegacion">
             <ul>
-                <li><a href="admin.php"><ion-icon name="desktop-outline"></ion-icon><span>Dashboard</span></a></li>
+                <li><a href="admin.php"><ion-icon name="desktop-outline"></ion-icon><span>Panel General</span></a></li>
                 <li><a href="usuarios.php"><ion-icon name="people-outline"></ion-icon><span>Usuarios</span></a></li>
                  <li>
                     <a href="empleados.php">
@@ -108,7 +109,13 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
                     </a>
                 </li>
                 <li><a id="lista-estudiantes" href="lista-estudiantes.php"><ion-icon name="person-outline"></ion-icon><span>Lista de Censados</span></a></li>
-                <li><a id="añadir_estudiante" href="inscripcion_censo.php"><ion-icon name="person-add-outline"></ion-icon><span>inscripcion Censo</span></a></li>
+                <li><a id="añadir_estudiante" href="inscripcion_censo.php"><ion-icon name="person-add-outline"></ion-icon><span>Inscripcion Censo</span></a></li>
+                <li>
+                    <a href="vacunas.php">
+                        <ion-icon name="medkit-outline"></ion-icon>
+                        <span>Vacunas</span>
+                    </a>
+                </li>
                 <li><a href="bd/logout.php" id="logoutLink"><ion-icon name="log-out-outline"></ion-icon><span>Cerrar Sesión</span></a></li>
             </ul>
         </nav>
@@ -304,6 +311,8 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
                 text: "¿Deseas cerrar sesión?",
                 icon: 'warning',
                 showCancelButton: true,
+                 confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
                 confirmButtonText: 'Sí, cerrar sesión',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {

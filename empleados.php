@@ -31,6 +31,7 @@ $data = $resultado->fetchAll(PDO::FETCH_ASSOC);
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="icon" href="icons/logo.ico" />
     <style>
         .section-title {
             font-size: 1.5rem;
@@ -61,11 +62,17 @@ $data = $resultado->fetchAll(PDO::FETCH_ASSOC);
         </div>
         <nav class="navegacion">
             <ul>
-                <li><a href="admin.php"><ion-icon name="desktop-outline"></ion-icon><span>Dashboard</span></a></li>
+                <li><a href="admin.php"><ion-icon name="desktop-outline"></ion-icon><span>Panel General</span></a></li>
                 <li><a href="usuarios.php"><ion-icon name="people-outline"></ion-icon><span>Usuarios</span></a></li>
                 <li><a id="profesores" href="empleados.php"><ion-icon name="id-card-outline"></ion-icon><span>Empleados</span></a></li>
                 <li><a href="lista_censos.php"><ion-icon name="person-outline"></ion-icon><span>Lista de Censados</span></a></li>
                 <li><a href="inscripcion_censo.php"><ion-icon name="person-add-outline"></ion-icon><span>Inscripcion Censo</span></a></li>
+                <li>
+                    <a href="vacunas.php">
+                        <ion-icon name="medkit-outline"></ion-icon>
+                        <span>Vacunas</span>
+                    </a>
+                </li>
                 <li><a href="bd/logout.php" id="logoutLink"><ion-icon name="log-out-outline"></ion-icon><span>Cerrar Sesión</span></a></li>
             </ul>
         </nav>

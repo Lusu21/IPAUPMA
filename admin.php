@@ -74,15 +74,26 @@ $sqlAnimales = "
 $resultAnimales = $conn->query($sqlAnimales);
 $totalAnimales = $resultAnimales->fetch_assoc()['total_animales'] ?? 0;
 
-// Agregar consulta para cálculos dinámicos de parroquias con categorías
+// MODIFICACIÓN: Consulta para incluir animales por parroquia
 $sql = "SELECT 
+    p.id as parroquia_id,
     p.nombre as parroquia,
-    COUNT(pr.id) as total,
-    (COUNT(pr.id) * 100.0 / (SELECT COUNT(*) FROM productores)) as porcentaje
+    COUNT(pr.id) as total_productores,
+    (COUNT(pr.id) * 100.0 / (SELECT COUNT(*) FROM productores)) as porcentaje,
+    COALESCE(SUM(
+        g.cant_vaca + g.cant_toro + g.cant_novillo + g.cant_maticas + g.cant_mautes + 
+        g.cant_becerros + g.cant_becerras + g.cant_bufalo + g.cant_bufala + 
+        g.cant_chivo + g.cant_cabra + g.cant_ovejo + g.cant_oveja + 
+        g.cant_verraco + g.cant_cerda_madre + g.cant_levantes + g.cant_lechones + 
+        g.cant_pollo_engorde + g.cant_gallinas_ponedoras + g.cant_gallinas_patio + 
+        g.cant_alevines + g.cant_peces + g.cant_reproductores
+    ), 0) as total_animales
 FROM parroquias p
 LEFT JOIN productores pr ON p.id = pr.parroquia_id
+LEFT JOIN predios pred ON pr.id = pred.productor_id
+LEFT JOIN ganaderia g ON pred.id = g.predio_id
 GROUP BY p.id
-ORDER BY total DESC";
+ORDER BY total_productores DESC";
 
 // Agregar consulta para últimos registros de productores
 $sqlUltimos = "SELECT pr.nombre as nombre_productor, p.nombre as parroquia 
@@ -99,38 +110,45 @@ $result = $conn->query($sql);
 
 // Calcular estadísticas
 $totales = [];
-while($row = $result->fetch_assoc()) {
-    $totales[] = $row['total'];
-}
-
-// Calcular percentiles
-sort($totales);
-$percentil70 = $totales[floor(count($totales) * 0.7)];
-$percentil30 = $totales[floor(count($totales) * 0.3)];
-
-// Asignar categorías dinámicamente
-$result->data_seek(0); // Volver al inicio del resultset
 $parroquiasConCategoria = [];
 while($row = $result->fetch_assoc()) {
-    if ($row['total'] >= $percentil70) {
-        $categoria = 'alta';
-    } elseif ($row['total'] >= $percentil30) {
-        $categoria = 'media';
-    } else {
-        $categoria = 'baja';
-    }
+    $totales[] = $row['total_productores'];
     
-    // Guardar con categoría dinámica
+    // Guardar datos temporalmente para calcular percentiles
     $parroquiasConCategoria[] = [
         'nombre' => $row['parroquia'],
-        'total' => $row['total'],
-        'porcentaje' => $row['porcentaje'],
-        'categoria' => $categoria
+        'total_productores' => $row['total_productores'],
+        'total_animales' => $row['total_animales'],
+        'porcentaje' => $row['porcentaje']
     ];
 }
 
+// Calcular percentiles
+if (!empty($totales)) {
+    sort($totales);
+    $percentil70 = $totales[floor(count($totales) * 0.7)] ?? 0;
+    $percentil30 = $totales[floor(count($totales) * 0.3)] ?? 0;
+} else {
+    $percentil70 = 0;
+    $percentil30 = 0;
+}
+
+// Asignar categorías dinámicamente
+foreach ($parroquiasConCategoria as &$parroquia) {
+    if ($parroquia['total_productores'] >= $percentil70) {
+        $parroquia['categoria'] = 'alta';
+    } elseif ($parroquia['total_productores'] >= $percentil30) {
+        $parroquia['categoria'] = 'media';
+    } else {
+        $parroquia['categoria'] = 'baja';
+    }
+}
+
 // Calcular máximo para barras
-$maxTotal = max(array_column($parroquiasConCategoria, 'total'));
+$maxTotal = 0;
+if (!empty($parroquiasConCategoria)) {
+    $maxTotal = max(array_column($parroquiasConCategoria, 'total_productores'));
+}
 
 // Calcular promedio
 $promedio = $totalproductores > 0 ? $totalproductores / $totalparroquias : 0;
@@ -138,10 +156,12 @@ $promedio = $totalproductores > 0 ? $totalproductores / $totalparroquias : 0;
 // Preparar datos para Chart.js
 $labels = [];
 $data = [];
+$dataAnimales = []; // Array para datos de animales
 $backgroundColors = [];
 foreach ($parroquiasConCategoria as $parroquia) {
     $labels[] = $parroquia['nombre'];
-    $data[] = $parroquia['total'];
+    $data[] = $parroquia['total_productores'];
+    $dataAnimales[] = $parroquia['total_animales']; // Guardar datos de animales
     if ($parroquia['categoria'] == 'alta') {
         $backgroundColors[] = 'rgba(52, 152, 219, 0.8)'; // Azul sólido para alta
     } elseif ($parroquia['categoria'] == 'media') {
@@ -152,6 +172,7 @@ foreach ($parroquiasConCategoria as $parroquia) {
 }
 $labelsJson = json_encode($labels);
 $dataJson = json_encode($data);
+$dataAnimalesJson = json_encode($dataAnimales); // JSON para datos de animales
 $backgroundColorsJson = json_encode($backgroundColors);
 
 // Consultar administradores
@@ -166,7 +187,6 @@ $resultUsuario = $conn->query($sqlUsuario);
 
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -175,8 +195,9 @@ $resultUsuario = $conn->query($sqlUsuario);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/graficas.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Agregar Chart.js si no está -->
-     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script> <!-- Plugin para mostrar valores en barras -->
+    <link rel="icon" href="icons/logo.ico" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 </head>
 
 <body>
@@ -199,7 +220,7 @@ $resultUsuario = $conn->query($sqlUsuario);
                 <li>
                     <a id="dashboard" href="admin.php">
                         <ion-icon name="desktop-outline"></ion-icon>
-                        <span>Dashboard</span>
+                        <span>Panel General</span>
                     </a>
                 </li>
                 <li>
@@ -227,7 +248,13 @@ $resultUsuario = $conn->query($sqlUsuario);
                     </a>
                 </li>
                 <li>
-                    <a href="../bd/logout.php" id="logoutLink">
+                    <a href="vacunas.php">
+                        <ion-icon name="medkit-outline"></ion-icon>
+                        <span>Vacunas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="bd/logout.php" id="logoutLink">
                         <ion-icon name="log-out-outline"></ion-icon>
                         <span>Cerrar Sesión</span>
                     </a>
@@ -395,7 +422,7 @@ $resultUsuario = $conn->query($sqlUsuario);
 
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -478,6 +505,21 @@ $resultUsuario = $conn->query($sqlUsuario);
                 plugins: {
                     legend: {
                         display: false // Ocultar leyenda interna, usamos la externa
+                    },
+                    tooltip: {
+                        callbacks: {
+                            // MODIFICACIÓN: Mostrar productores y animales en el tooltip
+                            label: function(context) {
+                                const parroquiaIndex = context.dataIndex;
+                                const productores = <?php echo $dataJson; ?>[parroquiaIndex];
+                                const animales = <?php echo $dataAnimalesJson; ?>[parroquiaIndex];
+                                
+                                return [
+                                    `Productores: ${productores}`,
+                                    `Animales: ${animales}`
+                                ];
+                            }
+                        }
                     },
                     datalabels: {
                         anchor: 'end', // Posición encima de la barra

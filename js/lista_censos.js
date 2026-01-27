@@ -97,7 +97,7 @@ $(document).on('click', '.editar', function(){
     });
 });
 
-// ✅ FUNCIONAL: Guardar edición del productor
+//Guardar edición del productor
 $(document).on('click', '#btnGuardarEdicion', function(e){
     e.preventDefault();
     

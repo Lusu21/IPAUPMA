@@ -27,6 +27,7 @@ try {
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="icon" href="icons/logo.ico" />
     <style>
         #formCenso input,
         #formCenso select {
@@ -109,7 +110,7 @@ try {
 
         <nav class="navegacion">
             <ul>
-                <li><a href="admin.php"><ion-icon name="desktop-outline"></ion-icon><span>Dashboard</span></a></li>
+                <li><a href="admin.php"><ion-icon name="desktop-outline"></ion-icon><span>Panel General</span></a></li>
                 <li><a href="usuarios.php"><ion-icon name="people-outline"></ion-icon><span>Usuarios</span></a></li>
                  <li>
                     <a href="empleados.php">
@@ -118,7 +119,13 @@ try {
                     </a>
                 </li>
                 <li><a href="lista_censos.php"><ion-icon name="person-outline"></ion-icon><span>Lista de Censados</span></a></li>
-                <li><a id="añadir-estudiante" href="inscripcion_censo.php"><ion-icon name="person-add-outline"></ion-icon><span>inscripcion Censo</span></a></li>
+                <li><a id="añadir-estudiante" href="inscripcion_censo.php"><ion-icon name="person-add-outline"></ion-icon><span>Inscripcion Censo</span></a></li>
+                <li>
+                    <a href="vacunas.php">
+                        <ion-icon name="medkit-outline"></ion-icon>
+                        <span>Vacunas</span>
+                    </a>
+                </li>
                 <li><a href="bd/logout.php" id="logoutLink"><ion-icon name="log-out-outline"></ion-icon><span>Cerrar Sesión</span></a></li>
             </ul>
         </nav>
@@ -528,21 +535,25 @@ try {
         });
 
         // Logout con confirmación
-        document.getElementById('logoutLink').addEventListener('click', function(e) {
+        (function(){
+        var logout = document.getElementById('logoutLink');
+        if (!logout) return;
+        logout.addEventListener('click', function(e) {
             e.preventDefault();
             Swal.fire({
-                title: '¿Cerrar sesión?',
+                title: '¿Estás seguro?',
+                text: "¿Deseas cerrar sesión?",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
+                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Sí, salir'
+                confirmButtonText: 'Sí, cerrar sesión',
+                cancelButtonText: 'Cancelar'
             }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = 'bd/logout.php';
-                }
+                if (result.isConfirmed) window.location.href = 'bd/logout.php';
             });
         });
+        })();
     </script>
 
 <?php if (isset($_GET['exito'])): ?>
