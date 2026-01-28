@@ -179,16 +179,16 @@ if (!isset($_SESSION['user_id'])) {
                         
                         <div class="mb-3">
                             <label class="form-label">Nombre de la Vacuna</label>
-                            <input type="text" class="form-control" id="nombre" name="nombre" required placeholder="Ej: Aftosa, Rabia...">
+                            <input type="text" class="form-control" id="nombre" name="nombre" required placeholder="Ej: Aftosa, Rabia..." maxlength="60">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Laboratorio</label>
-                            <input type="text" class="form-control" id="laboratorio" name="laboratorio" required>
+                            <input type="text" class="form-control" id="laboratorio" name="laboratorio" required maxlength="60">
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Lote</label>
-                                <input type="text" class="form-control" id="lote" name="lote" required>
+                                <input type="text" class="form-control" id="lote" name="lote" required maxlength="30">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">F. Vencimiento</label>
